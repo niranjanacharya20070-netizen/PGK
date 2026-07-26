@@ -1,0 +1,20 @@
+name: Programme Reminders
+
+on:
+  schedule:
+    - cron: '0 16 * * *'   # 9:30 PM IST
+    - cron: '30 4 * * *'   # 10:00 AM IST
+  workflow_dispatch: {}
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+      - run: node send-reminders.js
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
