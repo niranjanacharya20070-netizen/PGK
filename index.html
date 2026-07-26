@@ -90,14 +90,36 @@
 
   /* Ticket */
   .ticket{ background:var(--surface); border:1px solid var(--line); border-radius:6px; display:flex; margin-bottom:14px; overflow:hidden; }
-  .ticket-main{ flex:1; padding:16px 14px; cursor:pointer; }
-  .ticket-place{ font-family:Georgia, serif; font-weight:700; font-size:16.5px; margin-bottom:6px; }
+  .ticket-main{ flex:1; padding:16px 14px; cursor:pointer; min-width:0; }
+  .ticket-place{ font-family:Georgia, serif; font-weight:700; font-size:16.5px; margin-bottom:6px; display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
   .ticket-date{ display:flex; align-items:center; gap:6px; font-family:'Courier New', monospace; font-size:12px; color:var(--brass); }
   .ticket-stub{
     width:52px; flex-shrink:0; border-left:1.5px dashed var(--line); display:flex; align-items:center; justify-content:center;
     background:var(--surface-2); color:var(--muted); cursor:pointer; font-size:15px;
   }
   .ticket-stub:active{ color:var(--maroon); }
+
+  /* Ticket status tints — a light wash of colour, never a solid fill, so the text stays easy to read */
+  .ticket.status-upcoming{ background:rgba(63,163,86,0.16); border-color:rgba(90,190,115,0.42); }
+  .ticket.status-finished{ background:rgba(140,47,59,0.20); border-color:rgba(196,90,102,0.5); }
+  .status-badge{
+    display:inline-block; font-family:'Courier New', monospace; font-size:9px; letter-spacing:0.08em; text-transform:uppercase;
+    padding:2px 7px; border-radius:9px; font-weight:700; flex-shrink:0;
+  }
+  .status-badge.upcoming{ background:rgba(63,163,86,0.3); color:#A7F0BC; }
+  .status-badge.finished{ background:rgba(140,47,59,0.34); color:#F5B7BE; }
+
+  .ticket-actions{
+    display:flex; flex-direction:column; gap:8px; flex-shrink:0; padding:12px 10px;
+    border-left:1.5px dashed var(--line); align-items:center; justify-content:center;
+  }
+  .ticket-finish-btn, .ticket-del-btn{
+    width:29px; height:29px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:var(--surface-2); color:var(--muted); border:1px solid var(--line); cursor:pointer; font-size:13px;
+  }
+  .ticket-finish-btn.is-finished{ color:var(--brass); border-color:var(--brass-dim); }
+  .ticket-finish-btn:active{ color:#8FE3A6; border-color:#8FE3A6; }
+  .ticket-del-btn:active{ color:var(--maroon); border-color:var(--maroon); }
 
   /* Session card */
   .session-list{ display:flex; flex-direction:column; gap:12px; }
@@ -159,6 +181,18 @@
   }
   .btn-outline.danger:active{ border-color:var(--maroon); color:var(--maroon); }
 
+  /* Contact actions (Call / WhatsApp) */
+  .contact-actions{ display:flex; gap:10px; margin-top:16px; }
+  .btn-contact{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px;
+    border-radius:6px; font-size:13.5px; font-weight:700; text-decoration:none; cursor:pointer; border:none;
+  }
+  .btn-call{ background:var(--brass); color:var(--stage); }
+  .btn-call:active{ background:var(--brass-dim); }
+  .btn-whatsapp{ background:#25D366; color:#04240F; }
+  .btn-whatsapp:active{ background:#1EBE59; }
+  .no-phone-note{ font-size:12px; color:var(--muted); margin-top:14px; text-align:center; }
+
   /* FAB */
   .fab{
     position:fixed; bottom:26px; left:50%; transform:translateX(calc(-50% + 0px));
@@ -190,6 +224,14 @@
   .img-upload{ display:flex; align-items:center; gap:14px; }
   .img-upload .arch{ width:64px; height:72px; border-radius:32px 32px 8px 8px; cursor:pointer; }
   .upload-btn{ display:flex; align-items:center; gap:7px; padding:9px 14px; border:1px solid var(--line); border-radius:5px; background:transparent; color:var(--muted); font-size:12.5px; cursor:pointer; }
+  .role-toggle{ display:flex; gap:10px; }
+  .role-opt{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; padding:14px 10px;
+    border:1px solid var(--line); border-radius:6px; background:var(--stage); color:var(--muted); cursor:pointer;
+  }
+  .role-opt .role-icon{ font-size:20px; }
+  .role-opt .role-label{ font-size:13px; font-weight:600; }
+  .role-opt.active{ border-color:var(--brass); color:var(--brass); background:rgba(216,167,51,0.08); }
   .song-input-row{ display:flex; gap:8px; margin-bottom:9px; }
   .song-input-row .input{ flex:1; }
   .song-remove{ width:40px; flex-shrink:0; display:flex; align-items:center; justify-content:center; border:1px solid var(--line); border-radius:5px; color:var(--muted); background:transparent; cursor:pointer; }
@@ -247,7 +289,7 @@
       </div>
       <div class="title display">PURACHERY GRAMEENA KALAVEDHI</div>
     </div>
-    <div class="offline-tag">&#9679; <span id="syncStatusText">Live — synced across devices</span> &nbsp;·&nbsp; <span id="changePinLink" style="text-decoration:underline; cursor:pointer;">Change PIN</span></div>
+    <div class="offline-tag">&#9679; <span id="syncStatusText">Live — synced across devices</span> &nbsp;·&nbsp; <span id="changePinLink" style="text-decoration:underline; cursor:pointer;">Change PIN</span> <span id="notifEnableLink" style="text-decoration:underline; cursor:pointer; display:none;">&nbsp;·&nbsp; Enable notifications</span></div>
   </div>
 
   <div class="body">
@@ -257,8 +299,8 @@
       <div class="nav-grid">
         <div class="nav-card" id="goSessions">
           <div class="nav-icon">&#128197;</div>
-          <div class="nav-label">Sessions</div>
-          <div class="nav-count" id="sessionListCount">0 sessions</div>
+          <div class="nav-label">Seasons</div>
+          <div class="nav-count" id="sessionListCount">0 seasons</div>
         </div>
         <div class="nav-card" id="goMembers">
           <div class="nav-icon">&#128101;</div>
@@ -273,8 +315,8 @@
       <div class="page-head">
         <div class="back-btn" data-back="home">&#8249;</div>
         <div>
-          <div class="page-title">Sessions</div>
-          <div class="page-count" id="sessionListPageCount">0 sessions</div>
+          <div class="page-title">Seasons</div>
+          <div class="page-count" id="sessionListPageCount">0 seasons</div>
         </div>
       </div>
       <div id="sessionsListEl"></div>
@@ -315,7 +357,7 @@
   </div>
 
   <div class="fab" id="sessionsListFab" style="display:none;">
-    <button class="fab-inner" id="addSessionBtn">&#43; Add session</button>
+    <button class="fab-inner" id="addSessionBtn">&#43; Add season</button>
   </div>
   <div class="fab" id="sessionsFab" style="display:none;">
     <button class="fab-inner" id="addProgramBtn">&#43; Add programme</button>
@@ -328,734 +370,9 @@
   <div class="overlay" id="sessionOverlay">
     <div class="modal">
       <div class="modal-head">
-        <div class="modal-title" id="sessionModalTitle">Add Session</div>
+        <div class="modal-title" id="sessionModalTitle">Add Season</div>
         <button class="modal-close" data-close="sessionOverlay">&#10005;</button>
       </div>
       <div class="field">
-        <label class="label">Session image</label>
-        <div class="img-upload">
-          <div class="arch" id="sessionPhotoPreviewWrap">
-            <img id="sessionPhotoPreview" src="" alt="" style="display:none;">
-            <span id="sessionPhotoIcon">&#127925;</span>
-          </div>
-          <button type="button" class="upload-btn" id="sessionPhotoUploadBtn">&#128247; Upload image</button>
-          <input type="file" accept="image/*" class="hidden-input" id="sessionPhotoInput">
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">Session name</label>
-        <input class="input" id="sessionName" placeholder="e.g. Onam Season 2026">
-      </div>
-      <button class="submit" id="sessionSubmit">Add session</button>
-    </div>
-  </div>
-
-  <!-- PROGRAM MODAL -->
-  <div class="overlay" id="programOverlay">
-    <div class="modal">
-      <div class="modal-head">
-        <div class="modal-title" id="programModalTitle">New Programme Enquiry</div>
-        <button class="modal-close" data-close="programOverlay">&#10005;</button>
-      </div>
-      <div class="field">
-        <label class="label">Place name</label>
-        <input class="input" id="programPlace" placeholder="e.g. Purachery Sree Temple Ground">
-      </div>
-      <div class="field">
-        <label class="label">Date</label>
-        <input class="input" type="date" id="programDate">
-      </div>
-      <button class="submit" id="programSubmit">Add programme</button>
-    </div>
-  </div>
-
-  <!-- MEMBER MODAL -->
-  <div class="overlay" id="memberOverlay">
-    <div class="modal">
-      <div class="modal-head">
-        <div class="modal-title" id="memberModalTitle">Add Member</div>
-        <button class="modal-close" data-close="memberOverlay">&#10005;</button>
-      </div>
-      <div class="field">
-        <label class="label">Photo</label>
-        <div class="img-upload">
-          <div class="arch" id="memberPhotoPreviewWrap">
-            <img id="memberPhotoPreview" src="" alt="" style="display:none;">
-            <span id="memberPhotoIcon">&#128247;</span>
-          </div>
-          <button type="button" class="upload-btn" id="memberPhotoUploadBtn">&#128247; Upload photo</button>
-          <input type="file" accept="image/*" class="hidden-input" id="memberPhotoInput">
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">Name</label>
-        <input class="input" id="memberName" placeholder="Member's name">
-      </div>
-      <div class="field">
-        <label class="label">Place</label>
-        <input class="input" id="memberPlace" placeholder="Village / town">
-      </div>
-      <div class="field">
-        <label class="label">Phone number</label>
-        <input class="input" type="tel" id="memberPhone" placeholder="e.g. 9876543210">
-      </div>
-      <div class="field">
-        <label class="label">Song list</label>
-        <div id="songRows"></div>
-        <button type="button" class="add-song" id="addSongBtn">&#43; Add another song</button>
-      </div>
-      <button class="submit" id="memberSubmit">Add member</button>
-    </div>
-  </div>
-
-  <!-- SPLASH -->
-  <div class="splash" id="splash">
-    <div class="splash-eyebrow">Kalavedhi</div>
-    <div class="splash-badge">
-      <img id="splashLogoImg" src="" alt="" style="display:none;">
-      <span id="splashFlame" style="font-size:44px;">&#128293;</span>
-    </div>
-    <div class="splash-title display">PURACHERY GRAMEENA KALAVEDHI</div>
-    <div class="splash-hint">Tap to enter</div>
-  </div>
-
-  <!-- PIN LOCK -->
-  <div class="pinlock" id="pinLock" style="display:none;">
-    <div class="pinlock-icon">&#128274;</div>
-    <div class="pinlock-title display" id="pinLockTitle">Enter PIN</div>
-    <div class="pinlock-sub" id="pinLockSub">This app is locked</div>
-    <input class="input pinlock-input" id="pinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="&#8226;&#8226;&#8226;&#8226;">
-    <div class="pinlock-error" id="pinError" style="display:none;">Incorrect PIN. Try again.</div>
-    <button class="submit pinlock-btn" id="pinSubmitBtn">Unlock</button>
-    <div class="pinlock-reset" id="pinResetLink" style="display:none;">Forgot PIN? Reset app &amp; erase data</div>
-  </div>
-
-</div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot,
-  enableIndexedDbPersistence, writeBatch
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-/* ---------------- cloud sync (Firebase) ---------------- */
-const firebaseConfig = {
-  apiKey: "AIzaSyCG2K-wDOgy-eT8S0VScYtWf4Ed3tP0G7k",
-  authDomain: "purachery-grameena-kalavedhi.firebaseapp.com",
-  projectId: "purachery-grameena-kalavedhi",
-  storageBucket: "purachery-grameena-kalavedhi.firebasestorage.app",
-  messagingSenderId: "225285876915",
-  appId: "1:225285876915:web:fb3ad551b9ac04fee954c6",
-  measurementId: "G-TPY397YSJT"
-};
-const fbApp = initializeApp(firebaseConfig);
-const db = getFirestore(fbApp);
-// Lets the app read/write instantly while offline; queued changes sync automatically once back online.
-enableIndexedDbPersistence(db).catch(err => console.warn('Offline persistence unavailable:', err.code));
-
-const sessionsCol = collection(db, 'sessions');
-const programsCol = collection(db, 'programs');
-const membersCol  = collection(db, 'members');
-const brandingDoc = doc(db, 'meta', 'branding');
-
-function setSyncStatus(){
-  const el = document.getElementById('syncStatusText');
-  if(!el) return;
-  el.textContent = navigator.onLine
-    ? 'Live — synced across devices'
-    : 'Offline — changes will sync when back online';
-}
-window.addEventListener('online', setSyncStatus);
-window.addEventListener('offline', setSyncStatus);
-
-const DEFAULT_LOGO = "data:image/jpeg;base64,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X/ro1bWawvCjBNGLMQFWRiSegHFZGva693L5No7JAhzuHBc+v0rJ0pVKrSP0yGOp4TA05T1dlZdztM1wHiP/AJDd3/vj+QrpdA1ldQjEM5AuUHP+2PUe9cz4i/5DV3/v/wBBWmGg4VGmcmc16dfBwqU3o3+jM6iiiu4+XCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA9W8B366p4Ku7JyWudLYOgJ6xMSR+TFl/7aD0rYtMuF2vtZG3JIR9xj3P+y3Qjsa84+HOqf2X4qtjIjS2tyrW11EvV4nGCPr3H0r0aOaGCETRSebDEzRNuGC2OMEf7S4P+8PeuHGwbSaPSy+pZuL9S4JGQyzxQndnF3adTn+8vqf/AEIe4qK51SxikSaO9QO5VXIUv8nqy8ZI/PnFVtRvljeI2MyytGhkM4G7ZD/dcfXHX+dcLrPiqe0drfSbtHd4iJbmOMqVZ+XVSf8Avnd35xWGHwnP70tvzOjFY1U/chv+RL4w1oW8bWNpeNNdXUeb50G1U3Hd5Q9T03H2x61xNBOTk0V6iSWiPGlJyd2OR2RgynBUhh9a7m1+IjJbotzp/mTAYZ0k2hj64xxXCUVM6cZ/EjKpShU+JHdyfEUn7mmD/gU3/wBasDXfETavbiE2wiAk3gh8+vHT3rDoqY0YQ1SIjhqUWpJaotfbphYCyVtsO4swH8R96q0UVoklsdMpylbme2g6KR4pFkjYq6nIYdQakvLl7y5e4lADvgtjpnFQ0UWV7hzy5eW+gUUUUyQooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAHxSPDIskTFXU5Vh1Brox4vnVYCIP3iKPMIfAcjoSK5migE7bGtqfiHUNQgNs8gitmbc0UShQ5znLEcsfr0rJoooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//Z";
-
-/* ---------------- storage (Firestore, syncs across devices; cached for offline) ---------------- */
-const LS_KEYS = { pinHash:'kv_pin_hash' };
-
-let programs = [];
-let members = [];
-let sessions = [];
-let logo = DEFAULT_LOGO;
-let selectedMemberId = null;
-let selectedSessionId = null;
-
-/* Re-render whichever page is currently on screen, without navigating away from it. */
-function refreshCurrentPage(){
-  const activeEl = document.querySelector('.page.active');
-  renderHome();
-  if(!activeEl) return;
-  const name = activeEl.id.replace('page-', '');
-  if(name === 'sessionsList') renderSessionsList();
-  if(name === 'sessions') renderPrograms();
-  if(name === 'members') renderMembers();
-  if(name === 'memberDetail') renderMemberDetail();
-}
-
-onSnapshot(sessionsCol, snap => {
-  sessions = snap.docs.map(d => d.data());
-  refreshCurrentPage();
-}, err => console.error('sessions sync error', err));
-
-onSnapshot(programsCol, snap => {
-  programs = snap.docs.map(d => d.data());
-  refreshCurrentPage();
-}, err => console.error('programs sync error', err));
-
-onSnapshot(membersCol, snap => {
-  members = snap.docs.map(d => d.data());
-  refreshCurrentPage();
-}, err => console.error('members sync error', err));
-
-onSnapshot(brandingDoc, snap => {
-  if(snap.exists() && snap.data().logo){
-    logo = snap.data().logo;
-    renderLogo();
-  }
-}, err => console.error('branding sync error', err));
-
-function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
-function formatDate(iso){
-  if(!iso) return '';
-  const d = new Date(iso+'T00:00:00');
-  if(isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
-}
-function escapeHtml(s){
-  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-/* ---------------- image compression ---------------- */
-function compressImage(file, maxW){
-  maxW = maxW || 360;
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const rawDataUrl = e.target.result;
-      const img = new Image();
-      img.onload = () => {
-        try{
-          const scale = Math.min(1, maxW / img.width);
-          const w = Math.round(img.width * scale) || img.width;
-          const h = Math.round(img.height * scale) || img.height;
-          const canvas = document.createElement('canvas');
-          canvas.width = w; canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
-          resolve(canvas.toDataURL('image/jpeg', 0.72));
-        }catch(err){
-          resolve(rawDataUrl); // fallback: canvas step failed, keep the original photo
-        }
-      };
-      img.onerror = () => resolve(rawDataUrl); // fallback: browser couldn't decode (e.g. HEIC) — keep original
-      img.src = rawDataUrl;
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-/* ---------------- rendering ---------------- */
-function renderLogo(){
-  const topbarImg = document.getElementById('topbarLogoImg');
-  const splashImg = document.getElementById('splashLogoImg');
-  const splashFlame = document.getElementById('splashFlame');
-  if(logo){
-    topbarImg.src = logo; topbarImg.style.display = 'block';
-    splashImg.src = logo; splashImg.style.display = 'block';
-    splashFlame.style.display = 'none';
-  }
-}
-
-function renderHome(){
-  document.getElementById('sessionListCount').textContent = sessions.length + (sessions.length===1 ? ' session' : ' sessions');
-  document.getElementById('memberCount').textContent = members.length + (members.length===1 ? ' member' : ' members');
-}
-
-function renderSessionsList(){
-  document.getElementById('sessionListPageCount').textContent = sessions.length + (sessions.length===1 ? ' session' : ' sessions');
-  const list = document.getElementById('sessionsListEl');
-  if(sessions.length === 0){
-    list.innerHTML = '<div class="empty"><div class="empty-title">No sessions yet</div><div class="empty-sub">Add a session with a name and image to start tracking its programmes.</div></div>';
-    return;
-  }
-  list.innerHTML = '<div class="session-list">' + sessions.map(s => {
-    const count = programs.filter(p => p.sessionId === s.id).length;
-    return `
-    <div class="session-card">
-      <div class="session-main" data-open-session="${s.id}">
-        <div class="session-arch">${s.image ? `<img src="${s.image}" alt="">` : '&#127925;'}</div>
-        <div>
-          <div class="session-name">${escapeHtml(s.name)}</div>
-          <div class="session-count">${count} ${count===1 ? 'programme' : 'programmes'}</div>
-        </div>
-      </div>
-      <div class="session-actions">
-        <div class="session-edit-btn" data-edit-session="${s.id}">&#9998;</div>
-        <div class="session-del-btn" data-del-session="${s.id}">&#128465;</div>
-      </div>
-    </div>`;
-  }).join('') + '</div>';
-}
-
-function renderPrograms(){
-  const session = sessions.find(s => s.id === selectedSessionId);
-  document.getElementById('programsPageTitle').textContent = session ? session.name : 'Programs';
-  const inSession = programs.filter(p => p.sessionId === selectedSessionId);
-  const sorted = [...inSession].sort((a,b) => (a.date||'').localeCompare(b.date||''));
-  document.getElementById('sessionsCount').textContent = inSession.length + (inSession.length===1 ? ' enquiry' : ' enquiries');
-  const list = document.getElementById('programsList');
-  if(sorted.length === 0){
-    list.innerHTML = '<div class="empty"><div class="empty-title">No programmes yet</div><div class="empty-sub">Add a place and date when a new performance enquiry comes in.</div></div>';
-    return;
-  }
-  list.innerHTML = sorted.map(p => `
-    <div class="ticket">
-      <div class="ticket-main" data-edit-program="${p.id}">
-        <div class="ticket-place">${escapeHtml(p.place)}</div>
-        <div class="ticket-date mono">&#128197; ${formatDate(p.date)}</div>
-      </div>
-      <div class="ticket-stub" data-del-program="${p.id}">&#128465;</div>
-    </div>
-  `).join('');
-}
-
-function renderMembers(){
-  document.getElementById('membersCount').textContent = members.length + (members.length===1 ? ' member' : ' members');
-  const list = document.getElementById('membersList');
-  if(members.length === 0){
-    list.innerHTML = '<div class="empty"><div class="empty-title">No members yet</div><div class="empty-sub">Add a member with their photo, contact details and song list.</div></div>';
-    return;
-  }
-  list.innerHTML = '<div class="member-list">' + members.map(m => `
-    <div class="member-card" data-open-member="${m.id}">
-      <div class="arch">${m.image ? `<img src="${m.image}" alt="">` : '&#128100;'}</div>
-      <div>
-        <div class="m-name">${escapeHtml(m.name)}</div>
-        ${m.place ? `<div class="m-place">&#128205; ${escapeHtml(m.place)}</div>` : ''}
-        ${(m.songs && m.songs.length) ? `<div class="m-songs">&#9835; ${m.songs.length} song${m.songs.length===1?'':'s'}</div>` : ''}
-      </div>
-    </div>
-  `).join('') + '</div>';
-}
-
-function renderMemberDetail(){
-  const m = members.find(x => x.id === selectedMemberId);
-  const content = document.getElementById('memberDetailContent');
-  if(!m){ content.innerHTML=''; return; }
-  const songsHtml = (m.songs && m.songs.length)
-    ? `<div class="setlist">${m.songs.map((s,i) => `
-        <div class="song-row">
-          <div class="song-num mono">${String(i+1).padStart(2,'0')}</div>
-          <div class="song-name">${escapeHtml(s)}</div>
-        </div>`).join('')}</div>`
-    : `<div class="empty"><div class="empty-sub">No songs added yet.</div></div>`;
-  content.innerHTML = `
-    <div class="detail-hero">
-      <div class="arch-lg">${m.image ? `<img src="${m.image}" alt="">` : '&#128100;'}</div>
-      <div class="detail-name display">${escapeHtml(m.name)}</div>
-      ${m.place ? `<div class="detail-row">&#128205; ${escapeHtml(m.place)}</div>` : ''}
-      ${m.phone ? `<div class="detail-row"><a href="tel:${escapeHtml(m.phone)}">&#128222; ${escapeHtml(m.phone)}</a></div>` : ''}
-    </div>
-    <div class="setlist-head">&#9835; Setlist <span class="rule"></span></div>
-    ${songsHtml}
-    <div class="detail-actions">
-      <button class="btn-outline" id="editMemberBtn">&#9998; Edit</button>
-      <button class="btn-outline danger" id="removeMemberBtn">&#128465; Remove</button>
-    </div>
-  `;
-  document.getElementById('editMemberBtn').onclick = () => openMemberModal(m);
-  document.getElementById('removeMemberBtn').onclick = async () => {
-    try{
-      await deleteDoc(doc(membersCol, m.id));
-    }catch(err){
-      console.error(err);
-      alert('Could not remove. If you are offline, this will sync automatically once back online.');
-    }
-    showPage('members');
-  };
-}
-
-/* ---------------- navigation ---------------- */
-function showPage(name){
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  document.getElementById('sessionsListFab').style.display = name === 'sessionsList' ? 'block' : 'none';
-  document.getElementById('sessionsFab').style.display = name === 'sessions' ? 'block' : 'none';
-  document.getElementById('membersFab').style.display = name === 'members' ? 'block' : 'none';
-  if(name === 'home') renderHome();
-  if(name === 'sessionsList') renderSessionsList();
-  if(name === 'sessions') renderPrograms();
-  if(name === 'members') renderMembers();
-  if(name === 'memberDetail') renderMemberDetail();
-}
-
-document.getElementById('goSessions').onclick = () => showPage('sessionsList');
-document.getElementById('goMembers').onclick = () => showPage('members');
-document.querySelectorAll('[data-back]').forEach(btn => {
-  btn.onclick = () => showPage(btn.getAttribute('data-back'));
-});
-
-/* delegate clicks inside lists */
-document.getElementById('programsList').addEventListener('click', e => {
-  const editEl = e.target.closest('[data-edit-program]');
-  const delEl = e.target.closest('[data-del-program]');
-  if(delEl){
-    const id = delEl.getAttribute('data-del-program');
-    deleteDoc(doc(programsCol, id)).catch(err => {
-      console.error(err);
-      alert('Could not delete. If you are offline, this will sync automatically once back online.');
-    });
-    return;
-  }
-  if(editEl){
-    const id = editEl.getAttribute('data-edit-program');
-    const p = programs.find(x => x.id === id);
-    if(p) openProgramModal(p);
-  }
-});
-document.getElementById('membersList').addEventListener('click', e => {
-  const el = e.target.closest('[data-open-member]');
-  if(el){
-    selectedMemberId = el.getAttribute('data-open-member');
-    showPage('memberDetail');
-  }
-});
-document.getElementById('sessionsListEl').addEventListener('click', e => {
-  const delEl = e.target.closest('[data-del-session]');
-  const editEl = e.target.closest('[data-edit-session]');
-  const openEl = e.target.closest('[data-open-session]');
-  if(delEl){
-    const id = delEl.getAttribute('data-del-session');
-    (async () => {
-      try{
-        const batch = writeBatch(db);
-        batch.delete(doc(sessionsCol, id));
-        programs.filter(p => p.sessionId === id).forEach(p => batch.delete(doc(programsCol, p.id)));
-        await batch.commit();
-      }catch(err){
-        console.error(err);
-        alert('Could not delete. If you are offline, this will sync automatically once back online.');
-      }
-    })();
-    return;
-  }
-  if(editEl){
-    const id = editEl.getAttribute('data-edit-session');
-    const s = sessions.find(x => x.id === id);
-    if(s) openSessionModal(s);
-    return;
-  }
-  if(openEl){
-    selectedSessionId = openEl.getAttribute('data-open-session');
-    showPage('sessions');
-  }
-});
-
-/* ---------------- session modal ---------------- */
-let editingSessionId = null;
-let currentSessionImage = '';
-function openSessionModal(s){
-  editingSessionId = s ? s.id : null;
-  document.getElementById('sessionModalTitle').textContent = s ? 'Edit Session' : 'Add Session';
-  document.getElementById('sessionSubmit').textContent = s ? 'Save changes' : 'Add session';
-  document.getElementById('sessionName').value = s ? s.name : '';
-  currentSessionImage = s && s.image ? s.image : '';
-  const preview = document.getElementById('sessionPhotoPreview');
-  const icon = document.getElementById('sessionPhotoIcon');
-  if(currentSessionImage){ preview.src = currentSessionImage; preview.style.display='block'; icon.style.display='none'; }
-  else { preview.style.display='none'; icon.style.display='inline'; }
-  document.getElementById('sessionOverlay').classList.add('active');
-}
-document.getElementById('addSessionBtn').onclick = () => openSessionModal(null);
-document.getElementById('sessionPhotoUploadBtn').onclick = () => document.getElementById('sessionPhotoInput').click();
-document.getElementById('sessionPhotoPreviewWrap').onclick = () => document.getElementById('sessionPhotoInput').click();
-document.getElementById('sessionPhotoInput').addEventListener('change', async (e) => {
-  const file = e.target.files && e.target.files[0];
-  if(!file) return;
-  try{
-    const dataUrl = await compressImage(file, 360);
-    currentSessionImage = dataUrl;
-    const preview = document.getElementById('sessionPhotoPreview');
-    const icon = document.getElementById('sessionPhotoIcon');
-    preview.src = dataUrl; preview.style.display='block'; icon.style.display='none';
-  }catch(err){
-    console.error(err);
-    alert('Could not read that image. Please try a different photo.');
-  }
-  e.target.value = '';
-});
-document.getElementById('sessionSubmit').onclick = async () => {
-  const name = document.getElementById('sessionName').value.trim();
-  if(!name) return;
-  const id = editingSessionId || uid();
-  const existing = sessions.find(s => s.id === id);
-  const data = { id, name, image: currentSessionImage, createdAt: existing ? existing.createdAt : Date.now() };
-  try{
-    await setDoc(doc(sessionsCol, id), data);
-  }catch(err){
-    console.error(err);
-    alert('Could not save. If you are offline, this will sync automatically once back online.');
-  }
-  document.getElementById('sessionOverlay').classList.remove('active');
-};
-
-/* ---------------- program modal ---------------- */
-let editingProgramId = null;
-function openProgramModal(p){
-  editingProgramId = p ? p.id : null;
-  document.getElementById('programModalTitle').textContent = p ? 'Edit Programme' : 'New Programme Enquiry';
-  document.getElementById('programSubmit').textContent = p ? 'Save changes' : 'Add programme';
-  document.getElementById('programPlace').value = p ? p.place : '';
-  document.getElementById('programDate').value = p ? p.date : '';
-  document.getElementById('programOverlay').classList.add('active');
-}
-document.getElementById('addProgramBtn').onclick = () => openProgramModal(null);
-document.getElementById('programSubmit').onclick = async () => {
-  const place = document.getElementById('programPlace').value.trim();
-  const date = document.getElementById('programDate').value;
-  if(!place || !date) return;
-  const id = editingProgramId || uid();
-  const existing = programs.find(p => p.id === id);
-  const data = {
-    id, place, date,
-    sessionId: existing ? existing.sessionId : selectedSessionId,
-    createdAt: existing ? existing.createdAt : Date.now()
-  };
-  try{
-    await setDoc(doc(programsCol, id), data);
-  }catch(err){
-    console.error(err);
-    alert('Could not save. If you are offline, this will sync automatically once back online.');
-  }
-  document.getElementById('programOverlay').classList.remove('active');
-};
-
-/* ---------------- member modal ---------------- */
-let editingMemberId = null;
-let currentSongs = [''];
-let currentMemberImage = '';
-
-function renderSongRows(){
-  const wrap = document.getElementById('songRows');
-  wrap.innerHTML = currentSongs.map((s,i) => `
-    <div class="song-input-row">
-      <input class="input" data-song-idx="${i}" placeholder="Song ${i+1}" value="${escapeHtml(s)}">
-      ${currentSongs.length > 1 ? `<button type="button" class="song-remove" data-song-remove="${i}">&#10005;</button>` : ''}
-    </div>
-  `).join('');
-  wrap.querySelectorAll('[data-song-idx]').forEach(inp => {
-    inp.addEventListener('input', () => {
-      currentSongs[parseInt(inp.getAttribute('data-song-idx'))] = inp.value;
-    });
-  });
-  wrap.querySelectorAll('[data-song-remove]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      currentSongs.splice(parseInt(btn.getAttribute('data-song-remove')), 1);
-      renderSongRows();
-    });
-  });
-}
-document.getElementById('addSongBtn').onclick = () => { currentSongs.push(''); renderSongRows(); };
-
-function openMemberModal(m){
-  editingMemberId = m ? m.id : null;
-  document.getElementById('memberModalTitle').textContent = m ? 'Edit Member' : 'Add Member';
-  document.getElementById('memberSubmit').textContent = m ? 'Save changes' : 'Add member';
-  document.getElementById('memberName').value = m ? m.name : '';
-  document.getElementById('memberPlace').value = m ? m.place : '';
-  document.getElementById('memberPhone').value = m ? m.phone : '';
-  currentMemberImage = m && m.image ? m.image : '';
-  currentSongs = (m && m.songs && m.songs.length) ? [...m.songs] : [''];
-  const preview = document.getElementById('memberPhotoPreview');
-  const icon = document.getElementById('memberPhotoIcon');
-  if(currentMemberImage){ preview.src = currentMemberImage; preview.style.display='block'; icon.style.display='none'; }
-  else { preview.style.display='none'; icon.style.display='inline'; }
-  renderSongRows();
-  document.getElementById('memberOverlay').classList.add('active');
-}
-document.getElementById('addMemberBtn').onclick = () => openMemberModal(null);
-document.getElementById('memberPhotoUploadBtn').onclick = () => document.getElementById('memberPhotoInput').click();
-document.getElementById('memberPhotoInput').addEventListener('change', async (e) => {
-  const file = e.target.files && e.target.files[0];
-  if(!file) return;
-  try{
-    const dataUrl = await compressImage(file, 360);
-    currentMemberImage = dataUrl;
-    const preview = document.getElementById('memberPhotoPreview');
-    const icon = document.getElementById('memberPhotoIcon');
-    preview.src = dataUrl; preview.style.display='block'; icon.style.display='none';
-  }catch(err){ console.error(err); }
-});
-document.getElementById('memberSubmit').onclick = async () => {
-  const name = document.getElementById('memberName').value.trim();
-  if(!name) return;
-  const place = document.getElementById('memberPlace').value.trim();
-  const phone = document.getElementById('memberPhone').value.trim();
-  const songs = currentSongs.map(s => s.trim()).filter(Boolean);
-  const id = editingMemberId || uid();
-  const data = { id, name, place, phone, image: currentMemberImage, songs };
-  try{
-    await setDoc(doc(membersCol, id), data);
-  }catch(err){
-    console.error(err);
-    alert('Could not save. If you are offline, this will sync automatically once back online.');
-  }
-  document.getElementById('memberOverlay').classList.remove('active');
-};
-
-/* ---------------- modal close ---------------- */
-document.querySelectorAll('[data-close]').forEach(btn => {
-  btn.onclick = () => document.getElementById(btn.getAttribute('data-close')).classList.remove('active');
-});
-document.querySelectorAll('.overlay').forEach(ov => {
-  ov.addEventListener('click', e => { if(e.target === ov) ov.classList.remove('active'); });
-});
-
-/* ---------------- logo edit ---------------- */
-document.getElementById('logoEditBtn').onclick = () => document.getElementById('logoFileInput').click();
-document.getElementById('logoFileInput').addEventListener('change', async (e) => {
-  const file = e.target.files && e.target.files[0];
-  if(!file) return;
-  try{
-    const dataUrl = await compressImage(file, 300);
-    logo = dataUrl;
-    renderLogo();
-    await setDoc(brandingDoc, { logo: dataUrl }, { merge: true });
-  }catch(err){
-    console.error(err);
-    alert('Could not save. If you are offline, this will sync automatically once back online.');
-  }
-});
-
-/* ---------------- splash ---------------- */
-const splash = document.getElementById('splash');
-function enterApp(){
-  splash.classList.add('out');
-  setTimeout(() => { splash.style.display = 'none'; showPinLock(); }, 450);
-}
-splash.addEventListener('click', enterApp);
-setTimeout(enterApp, 2200);
-
-/* ---------------- PIN lock ---------------- */
-async function sha256Hex(text){
-  if(window.crypto && window.crypto.subtle){
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-  }
-  let h = 0;
-  for(let i=0;i<text.length;i++){ h = ((h<<5)-h) + text.charCodeAt(i); h |= 0; }
-  return 'fallback' + h;
-}
-
-const pinLock = document.getElementById('pinLock');
-const pinInput = document.getElementById('pinInput');
-const pinError = document.getElementById('pinError');
-const pinTitle = document.getElementById('pinLockTitle');
-const pinSub = document.getElementById('pinLockSub');
-const pinSubmitBtn = document.getElementById('pinSubmitBtn');
-const pinResetLink = document.getElementById('pinResetLink');
-
-let pinMode = 'enter'; // 'enter' | 'create' | 'confirm'
-let pendingPin = '';
-let pinFailCount = 0;
-
-pinInput.addEventListener('input', () => { pinInput.value = pinInput.value.replace(/[^0-9]/g, ''); });
-pinInput.addEventListener('keydown', e => { if(e.key === 'Enter') pinSubmitBtn.click(); });
-
-function showPinLock(){
-  pinLock.style.display = 'flex';
-  const storedHash = localStorage.getItem(LS_KEYS.pinHash);
-  pinResetLink.style.display = 'none';
-  pinError.style.display = 'none';
-  pinInput.value = '';
-  if(!storedHash){
-    pinMode = 'create';
-    pinTitle.textContent = 'Set a PIN';
-    pinSub.textContent = 'Choose a 4–6 digit PIN to keep this app private on this device';
-    pinSubmitBtn.textContent = 'Set PIN';
-  } else {
-    pinMode = 'enter';
-    pinTitle.textContent = 'Enter PIN';
-    pinSub.textContent = 'This app is locked';
-    pinSubmitBtn.textContent = 'Unlock';
-  }
-  setTimeout(() => pinInput.focus(), 250);
-}
-
-function hidePinLock(){
-  pinLock.style.display = 'none';
-}
-
-pinSubmitBtn.onclick = async () => {
-  const val = pinInput.value.trim();
-  if(val.length < 4){
-    pinError.textContent = 'PIN must be at least 4 digits.';
-    pinError.style.display = 'block';
-    return;
-  }
-  if(pinMode === 'create'){
-    pendingPin = val;
-    pinMode = 'confirm';
-    pinTitle.textContent = 'Confirm PIN';
-    pinSub.textContent = 'Enter the same PIN again to confirm';
-    pinSubmitBtn.textContent = 'Confirm';
-    pinInput.value = '';
-    pinError.style.display = 'none';
-    pinInput.focus();
-    return;
-  }
-  if(pinMode === 'confirm'){
-    if(val !== pendingPin){
-      pinError.textContent = "PINs didn't match — start again.";
-      pinError.style.display = 'block';
-      pinMode = 'create';
-      pinTitle.textContent = 'Set a PIN';
-      pinSub.textContent = 'Choose a 4–6 digit PIN to keep this app private on this device';
-      pinSubmitBtn.textContent = 'Set PIN';
-      pendingPin = '';
-      pinInput.value = '';
-      return;
-    }
-    const hash = await sha256Hex(val);
-    localStorage.setItem(LS_KEYS.pinHash, hash);
-    hidePinLock();
-    return;
-  }
-  // mode === 'enter'
-  const hash = await sha256Hex(val);
-  const storedHash = localStorage.getItem(LS_KEYS.pinHash);
-  if(hash === storedHash){
-    pinFailCount = 0;
-    hidePinLock();
-  } else {
-    pinFailCount++;
-    pinError.textContent = 'Incorrect PIN. Try again.';
-    pinError.style.display = 'block';
-    pinInput.value = '';
-    pinInput.focus();
-    if(pinFailCount >= 5){ pinResetLink.style.display = 'block'; }
-  }
-};
-
-pinResetLink.onclick = () => {
-  const ok = confirm('This will reset the PIN lock on this device only. Your sessions, programmes and members are stored in the shared cloud and will not be affected. Continue?');
-  if(!ok) return;
-  localStorage.removeItem(LS_KEYS.pinHash);
-  pinFailCount = 0;
-  showPinLock();
-};
-
-document.getElementById('changePinLink').onclick = () => {
-  localStorage.removeItem(LS_KEYS.pinHash);
-  showPinLock();
-};
-
-/* ---------------- init ---------------- */
-setSyncStatus();
-renderLogo();
-renderHome();
-</script>
-</body>
-</html>
+        <label class="label">Season image</label>
+        <div c
